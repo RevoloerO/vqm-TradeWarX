@@ -1,15 +1,20 @@
 {
   "name": "vqm-tradewarx",
+  "homepage": "revoloero.github.io/vqm-TradeWarX",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "proxy": "https://revoloero.github.io/vqm-TradeWarX",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "ghpages": "^0.0.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
