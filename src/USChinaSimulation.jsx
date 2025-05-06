@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OutcomeCharts from './OutcomeCharts';
 
+// Constants
+const strategyOptions = ['Aggressive', 'Moderate', 'Passive'];
+const scenarioOptions = ["Tech Decoupling", "Rare Earth Embargo", "Global Alliance Expansion"];
+const glossaryTerms = [
+    { term: 'Nash Equilibrium', definition: 'A situation where no player can benefit by changing strategies unilaterally.' },
+    { term: 'Pareto Optimality', definition: 'An outcome where no player can be made better off without making another worse off.' },
+    { term: 'Game Theory', definition: 'The study of mathematical models of strategic interactions among rational agents.' }
+];
+
+// Component
 function USChinaSimulation() {
     const navigate = useNavigate();
     const [scenario, setScenario] = useState(null);
@@ -10,49 +20,99 @@ function USChinaSimulation() {
     const [payoffMatrix, setPayoffMatrix] = useState([]);
     const [scenarioContext, setScenarioContext] = useState(null);
     const [recommendations, setRecommendations] = useState([]);
-    const glossaryTerms = [
-        { term: 'Nash Equilibrium', definition: 'A situation where no player can benefit by changing strategies unilaterally.' },
-        { term: 'Pareto Optimality', definition: 'An outcome where no player can be made better off without making another worse off.' },
-        { term: 'Game Theory', definition: 'The study of mathematical models of strategic interactions among rational agents.' }
-    ];
+    const [chartData, setChartData] = useState(null);
 
-    const strategyOptions = ['Aggressive', 'Moderate', 'Passive'];
-    const scenarioOptions = ["Tech Decoupling", "Rare Earth Embargo", "Global Alliance Expansion"];
+    // Utility Functions
+    const generatePayoffMatrix = (scenario) => examplePayoffMatrix;
+    const isNashEquilibrium = (matrix, row, col) => false; // Placeholder logic
+    const isParetoOptimal = (matrix, row, col) => false; // Placeholder logic
 
-    // Generates a 3x3 payoff matrix based on the scenario
-    const generatePayoffMatrix = (scenario) => {
-        // Placeholder logic
-        return [
-            [{ us: 1, china: 1 }, { us: 2, china: 0 }, { us: 0, china: 2 }],
-            [{ us: 0, china: 2 }, { us: 1, china: 1 }, { us: 2, china: 0 }],
-            [{ us: 2, china: 0 }, { us: 0, china: 2 }, { us: 1, china: 1 }]
-        ];
+    const updateMatrixCell = (rowIndex, colIndex, role, value) => {
+        setPayoffMatrix((prevMatrix) => {
+            const updatedMatrix = [...prevMatrix];
+            updatedMatrix[rowIndex][colIndex] = {
+                ...updatedMatrix[rowIndex][colIndex],
+                [role]: value
+            };
+            return updatedMatrix;
+        });
     };
 
-    // Updates local state for US or China strategy selection
-    const onStrategyChange = (role, selected) => {
-        if (role === 'US') {
-            setUsStrategy(selected);
-        } else if (role === 'China') {
-            setChinaStrategy(selected);
-        }
+    const prepareChartData = (matrix, selections) => {
+        const { usStrategy, chinaStrategy } = selections;
+        return {
+            labels: ['US Payoff', 'China Payoff'],
+            datasets: [
+                {
+                    label: 'Payoff Summary',
+                    data: [
+                        matrix[usStrategy]?.[chinaStrategy]?.us || 0,
+                        matrix[usStrategy]?.[chinaStrategy]?.china || 0
+                    ],
+                    backgroundColor: ['#4caf50', '#2196f3']
+                }
+            ]
+        };
     };
 
-    // Displays a tooltip with strategy details
-    const showTooltip = (strategy) => {
-        switch (strategy) {
-            case 'Aggressive':
-                return 'Focuses on maximizing short-term gains.';
-            case 'Moderate':
-                return 'Balances risk and reward.';
-            case 'Passive':
-                return 'Minimizes conflict and risk.';
+    const loadScenarioPayoffMatrix = (selectedScenario) => {
+        switch (selectedScenario) {
+            case "Tech Decoupling":
+                return [
+                    [{ us: 3, china: 2 }, { us: 1, china: 1 }, { us: 0, china: 3 }],
+                    [{ us: 2, china: 3 }, { us: 1, china: 1 }, { us: 3, china: 0 }],
+                    [{ us: 1, china: 1 }, { us: 2, china: 2 }, { us: 0, china: 0 }]
+                ];
+            case "Rare Earth Embargo":
+                return [
+                    [{ us: 2, china: 1 }, { us: 3, china: 0 }, { us: 1, china: 2 }],
+                    [{ us: 0, china: 3 }, { us: 1, china: 1 }, { us: 2, china: 2 }],
+                    [{ us: 1, china: 2 }, { us: 0, china: 3 }, { us: 3, china: 0 }]
+                ];
+            case "Global Alliance Expansion":
+                return [
+                    [{ us: 1, china: 1 }, { us: 2, china: 2 }, { us: 3, china: 0 }],
+                    [{ us: 2, china: 2 }, { us: 1, china: 1 }, { us: 0, china: 3 }],
+                    [{ us: 3, china: 0 }, { us: 1, china: 1 }, { us: 2, china: 2 }]
+                ];
             default:
-                return '';
+                return [];
         }
     };
 
-    // Renders buttons for strategy selection
+    const loadScenarioContext = (selectedScenario) => {
+        switch (selectedScenario) {
+            case "Tech Decoupling":
+                return "A scenario where the U.S. and China decouple their technology sectors.";
+            case "Rare Earth Embargo":
+                return "A scenario where China imposes an embargo on rare earth exports.";
+            case "Global Alliance Expansion":
+                return "A scenario where the U.S. and China compete for global alliances.";
+            default:
+                return "";
+        }
+    };
+
+    // Render Functions
+    const renderScenarioSelector = () => (
+        <div className="card">
+            <h3>Select Scenario</h3>
+            <select
+                className="dropdown"
+                value={scenario || ''}
+                onChange={(e) => setScenario(e.target.value)}
+            >
+                <option value="" disabled>Select Scenario</option>
+                {scenarioOptions.map((option) => (
+                    <option key={option} value={option}>
+                        {option}
+                    </option>
+                ))}
+            </select>
+            {scenarioContext && <div className="context"><p>{scenarioContext}</p></div>}
+        </div>
+    );
+
     const renderStrategySelector = () => (
         <div className="card">
             <h3>Select Strategies</h3>
@@ -85,141 +145,71 @@ function USChinaSimulation() {
         </div>
     );
 
-    // Checks if a cell is a Nash Equilibrium
-    const isNashEquilibrium = (matrix, row, col) => {
-        // Placeholder logic
-        return false;
-    };
-
-    // Checks if a cell is Pareto Optimal
-    const isParetoOptimal = (matrix, row, col) => {
-        // Placeholder logic
-        return false;
-    };
-
-    // Handles strategy selection and updates state
-    const handleStrategySelection = (usStrategy, chinaStrategy) => {
-        setUsStrategy(usStrategy);
-        setChinaStrategy(chinaStrategy);
-        // Additional logic to trigger highlights
-    };
-
-    // Renders the payoff matrix as a table
-    const renderMatrix = (matrix) => {
-        return (
-            <div className="card">
-                <h3>Payoff Matrix</h3>
-                <table className="matrix-table">
-                    <tbody>
-                        {matrix.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                                {row.map((cell, colIndex) => (
-                                    <td
-                                        key={colIndex}
-                                        className={`matrix-cell ${
-                                            isNashEquilibrium(matrix, rowIndex, colIndex) ? 'nash' : ''
-                                        } ${
-                                            isParetoOptimal(matrix, rowIndex, colIndex) ? 'pareto' : ''
-                                        }`}
-                                        onClick={() => handleStrategySelection(rowIndex, colIndex)}
-                                    >
-                                        US: {cell.us}, China: {cell.china}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
-
-    // Updates state with the new scenario
-    const onScenarioChange = (selectedScenario) => {
-        setScenario(selectedScenario);
-    };
-
-    // Loads predefined payoff matrix for the selected scenario
-    const loadScenarioPayoffMatrix = (selectedScenario) => {
-        // Placeholder logic for loading scenario-specific matrix
-        switch (selectedScenario) {
-            case "Tech Decoupling":
-                return [
-                    [{ us: 3, china: 2 }, { us: 1, china: 1 }, { us: 0, china: 3 }],
-                    [{ us: 2, china: 3 }, { us: 1, china: 1 }, { us: 3, china: 0 }],
-                    [{ us: 1, china: 1 }, { us: 2, china: 2 }, { us: 0, china: 0 }]
-                ];
-            case "Rare Earth Embargo":
-                return [
-                    [{ us: 2, china: 1 }, { us: 3, china: 0 }, { us: 1, china: 2 }],
-                    [{ us: 0, china: 3 }, { us: 1, china: 1 }, { us: 2, china: 2 }],
-                    [{ us: 1, china: 2 }, { us: 0, china: 3 }, { us: 3, china: 0 }]
-                ];
-            case "Global Alliance Expansion":
-                return [
-                    [{ us: 1, china: 1 }, { us: 2, china: 2 }, { us: 3, china: 0 }],
-                    [{ us: 2, china: 2 }, { us: 1, china: 1 }, { us: 0, china: 3 }],
-                    [{ us: 3, china: 0 }, { us: 1, china: 1 }, { us: 2, china: 2 }]
-                ];
-            default:
-                return [];
-        }
-    };
-
-    // Fetches description, headlines, and background data for the selected scenario
-    const loadScenarioContext = (selectedScenario) => {
-        // Placeholder logic for loading scenario context
-        switch (selectedScenario) {
-            case "Tech Decoupling":
-                return "A scenario where the U.S. and China decouple their technology sectors.";
-            case "Rare Earth Embargo":
-                return "A scenario where China imposes an embargo on rare earth exports.";
-            case "Global Alliance Expansion":
-                return "A scenario where the U.S. and China compete for global alliances.";
-            default:
-                return "";
-        }
-    };
-
-    // Renders dropdown or buttons for scenario selection
-    const renderScenarioSelector = () => (
+    const renderMatrix = (matrix) => (
         <div className="card">
-            <h3>Select Scenario</h3>
-            <select
-                className="dropdown"
-                value={scenario || ''}
-                onChange={(e) => setScenario(e.target.value)}
-            >
-                <option value="" disabled>Select Scenario</option>
-                {scenarioOptions.map((option) => (
-                    <option key={option} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
+            <h3>Payoff Matrix</h3>
+            <table className="matrix-table">
+                <tbody>
+                    {matrix.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                            {row.map((cell, colIndex) => (
+                                <td
+                                    key={colIndex}
+                                    className={`matrix-cell ${
+                                        isNashEquilibrium(matrix, rowIndex, colIndex) ? 'nash' : ''
+                                    } ${
+                                        isParetoOptimal(matrix, rowIndex, colIndex) ? 'pareto' : ''
+                                    }`}
+                                    onClick={() => handleStrategySelection(rowIndex, colIndex)}
+                                >
+                                    US: {cell.us}, China: {cell.china}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 
-    // Formats matrix outcomes into chart-compatible data
-    const prepareChartData = (matrix, selections) => {
-        const { usStrategy, chinaStrategy } = selections;
-        // Placeholder logic for formatting data
-        return {
-            labels: ['US Payoff', 'China Payoff'],
-            datasets: [
-                {
-                    label: 'Payoff Summary',
-                    data: [
-                        matrix[usStrategy]?.[chinaStrategy]?.us || 0,
-                        matrix[usStrategy]?.[chinaStrategy]?.china || 0
-                    ],
-                    backgroundColor: ['#4caf50', '#2196f3']
-                }
-            ]
-        };
-    };
+    const renderEditableMatrix = (matrix) => (
+        <div className="card">
+            <h3>Edit Payoff Matrix</h3>
+            <table className="matrix-table">
+                <tbody>
+                    {matrix.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                            {row.map((cell, colIndex) => (
+                                <td key={colIndex}>
+                                    <div>
+                                        <label>US:</label>
+                                        <input
+                                            type="number"
+                                            value={cell.us}
+                                            onChange={(e) =>
+                                                updateMatrixCell(rowIndex, colIndex, 'us', parseInt(e.target.value, 10))
+                                            }
+                                        />
+                                    </div>
+                                    <div>
+                                        <label>China:</label>
+                                        <input
+                                            type="number"
+                                            value={cell.china}
+                                            onChange={(e) =>
+                                                updateMatrixCell(rowIndex, colIndex, 'china', parseInt(e.target.value, 10))
+                                            }
+                                        />
+                                    </div>
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
 
-    // Renders a collapsible glossary panel
     const renderGlossaryPanel = () => (
         <div className="card">
             <h3>Glossary</h3>
@@ -233,7 +223,6 @@ function USChinaSimulation() {
         </div>
     );
 
-    // Generates theory-based suggestions tied to current selections
     const renderRecommendations = () => (
         <div className="card">
             <h3>Recommendations</h3>
@@ -245,7 +234,7 @@ function USChinaSimulation() {
         </div>
     );
 
-    // Refreshes the matrix when scenario or strategy state changes
+    // Effects
     useEffect(() => {
         if (scenario) {
             const matrix = loadScenarioPayoffMatrix(scenario);
@@ -255,7 +244,6 @@ function USChinaSimulation() {
         }
     }, [scenario]);
 
-    // Re-triggers payoff matrix calculation when strategies change
     useEffect(() => {
         if (usStrategy && chinaStrategy) {
             const matrix = generatePayoffMatrix({ usStrategy, chinaStrategy });
@@ -263,7 +251,6 @@ function USChinaSimulation() {
         }
     }, [usStrategy, chinaStrategy]);
 
-    // Triggers chart data update when strategy or scenario changes
     useEffect(() => {
         if (payoffMatrix.length && usStrategy !== null && chinaStrategy !== null) {
             const data = prepareChartData(payoffMatrix, { usStrategy, chinaStrategy });
@@ -271,7 +258,6 @@ function USChinaSimulation() {
         }
     }, [payoffMatrix, usStrategy, chinaStrategy]);
 
-    // Updates recommendations based on selected strategies
     useEffect(() => {
         if (usStrategy && chinaStrategy) {
             const newRecommendations = [];
@@ -288,6 +274,7 @@ function USChinaSimulation() {
         }
     }, [usStrategy, chinaStrategy]);
 
+    // Main Render
     return (
         <div className="container">
             <header className="header">
@@ -296,10 +283,10 @@ function USChinaSimulation() {
             </header>
             <main className="main-content">
                 {renderScenarioSelector()}
-                {scenarioContext && <div className="card"><p>{scenarioContext}</p></div>}
                 {renderStrategySelector()}
                 {renderMatrix(payoffMatrix)}
-                <OutcomeCharts matrix={payoffMatrix} selections={{ us: usStrategy, china: chinaStrategy }} />
+                {renderEditableMatrix(payoffMatrix)}
+                {payoffMatrix ? <OutcomeCharts matrix={payoffMatrix} selections={{ us: usStrategy, china: chinaStrategy }} /> : null}
                 {renderGlossaryPanel()}
                 {renderRecommendations()}
             </main>

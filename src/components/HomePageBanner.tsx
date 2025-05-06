@@ -11,7 +11,7 @@ const HomePageBanner: React.FC = () => {
         <img src={"images/TradeWarX-logo-nobg.png"} alt="Trade War X Logo" className="banner-logo" />
         <button onClick={() => { navigate('/vqm-TradeWarX/US-China') }}>US-China Simulation</button> {/* Added button */}
       </div>
-      <div className="banner-right">
+      <div className="banner-right scrollable-content"> {/* Replaced inline styles with class */}
         <h1 className="banner-title">Trade War X</h1> {/* Moved title here */}
         <h2 className="banner-subtitle">US-China Trade War Game Theory Simulator</h2> {/* Added subtitle */}
         <p className="banner-description">
