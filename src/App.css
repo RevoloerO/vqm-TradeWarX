@@ -12,3 +12,79 @@ body {
   font-weight: 400; /* Default weight */
   font-style: normal;
 }
+
+.container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.home-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.main-content {
+    display: grid;
+    gap: 20px;
+}
+
+.card {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.strategy-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.strategy-button {
+    background: #e0e0e0;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.strategy-button.selected {
+    background: #007bff;
+    color: white;
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.matrix-cell {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.matrix-cell.nash {
+    background-color: #ffeb3b;
+}
+
+.matrix-cell.pareto {
+    background-color: #4caf50;
+    color: white;
+}
