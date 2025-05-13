@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OutcomeCharts from './OutcomeCharts';
+import ScenarioSelector from './components/ScenarioSelector';
+import StrategySelector from './components/StrategySelector';
+import PayoffMatrix from './components/PayoffMatrix';
+import EditableMatrix from './components/EditableMatrix';
+import GlossaryPanel from './components/GlossaryPanel'; // Import the new component
+import RecommendationsPanel from './components/RecommendationsPanel'; // Import the new component
 
 // Constants
 const strategyOptions = ['Aggressive', 'Moderate', 'Passive'];
@@ -23,7 +29,41 @@ function USChinaSimulation() {
     const [chartData, setChartData] = useState(null);
 
     // Utility Functions
-    const generatePayoffMatrix = (scenario) => examplePayoffMatrix;
+    const generatePayoffMatrix = ({ usStrategy, chinaStrategy }) => {
+        // Dynamic logic to generate a payoff matrix based on strategies
+        if (usStrategy === 'Aggressive' && chinaStrategy === 'Aggressive') {
+            return [
+                [{ us: 2, china: 2 }, { us: 1, china: 3 }, { us: 0, china: 4 }],
+                [{ us: 3, china: 1 }, { us: 2, china: 2 }, { us: 1, china: 3 }],
+                [{ us: 4, china: 0 }, { us: 3, china: 1 }, { us: 2, china: 2 }]
+            ];
+        } else if (usStrategy === 'Aggressive' && chinaStrategy === 'Moderate') {
+            return [
+                [{ us: 3, china: 1 }, { us: 2, china: 2 }, { us: 1, china: 3 }],
+                [{ us: 4, china: 0 }, { us: 3, china: 1 }, { us: 2, china: 2 }],
+                [{ us: 5, china: -1 }, { us: 4, china: 0 }, { us: 3, china: 1 }]
+            ];
+        } else if (usStrategy === 'Moderate' && chinaStrategy === 'Passive') {
+            return [
+                [{ us: 4, china: 2 }, { us: 3, china: 3 }, { us: 2, china: 4 }],
+                [{ us: 5, china: 1 }, { us: 4, china: 2 }, { us: 3, china: 3 }],
+                [{ us: 6, china: 0 }, { us: 5, china: 1 }, { us: 4, china: 2 }]
+            ];
+        } else if (usStrategy === 'Passive' && chinaStrategy === 'Aggressive') {
+            return [
+                [{ us: 1, china: 5 }, { us: 0, china: 6 }, { us: -1, china: 7 }],
+                [{ us: 2, china: 4 }, { us: 1, china: 5 }, { us: 0, china: 6 }],
+                [{ us: 3, china: 3 }, { us: 2, china: 4 }, { us: 1, china: 5 }]
+            ];
+        } else {
+            // Default matrix for other combinations
+            return [
+                [{ us: 2, china: 2 }, { us: 2, china: 2 }, { us: 2, china: 2 }],
+                [{ us: 2, china: 2 }, { us: 2, china: 2 }, { us: 2, china: 2 }],
+                [{ us: 2, china: 2 }, { us: 2, china: 2 }, { us: 2, china: 2 }]
+            ];
+        }
+    };
     const isNashEquilibrium = (matrix, row, col) => false; // Placeholder logic
     const isParetoOptimal = (matrix, row, col) => false; // Placeholder logic
 
@@ -93,147 +133,6 @@ function USChinaSimulation() {
         }
     };
 
-    // Render Functions
-    const renderScenarioSelector = () => (
-        <div className="card">
-            <h3>Select Scenario</h3>
-            <select
-                className="dropdown"
-                value={scenario || ''}
-                onChange={(e) => setScenario(e.target.value)}
-            >
-                <option value="" disabled>Select Scenario</option>
-                {scenarioOptions.map((option) => (
-                    <option key={option} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
-            {scenarioContext && <div className="context"><p>{scenarioContext}</p></div>}
-        </div>
-    );
-
-    const renderStrategySelector = () => (
-        <div className="card">
-            <h3>Select Strategies</h3>
-            <div className="strategy-group">
-                <div>
-                    <h4>U.S. Strategy</h4>
-                    {strategyOptions.map((option) => (
-                        <button
-                            key={option}
-                            className={`strategy-button ${usStrategy === option ? 'selected' : ''}`}
-                            onClick={() => setUsStrategy(option)}
-                        >
-                            {option}
-                        </button>
-                    ))}
-                </div>
-                <div>
-                    <h4>China Strategy</h4>
-                    {strategyOptions.map((option) => (
-                        <button
-                            key={option}
-                            className={`strategy-button ${chinaStrategy === option ? 'selected' : ''}`}
-                            onClick={() => setChinaStrategy(option)}
-                        >
-                            {option}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-
-    const renderMatrix = (matrix) => (
-        <div className="card">
-            <h3>Payoff Matrix</h3>
-            <table className="matrix-table">
-                <tbody>
-                    {matrix.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {row.map((cell, colIndex) => (
-                                <td
-                                    key={colIndex}
-                                    className={`matrix-cell ${
-                                        isNashEquilibrium(matrix, rowIndex, colIndex) ? 'nash' : ''
-                                    } ${
-                                        isParetoOptimal(matrix, rowIndex, colIndex) ? 'pareto' : ''
-                                    }`}
-                                    onClick={() => handleStrategySelection(rowIndex, colIndex)}
-                                >
-                                    US: {cell.us}, China: {cell.china}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
-
-    const renderEditableMatrix = (matrix) => (
-        <div className="card">
-            <h3>Edit Payoff Matrix</h3>
-            <table className="matrix-table">
-                <tbody>
-                    {matrix.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {row.map((cell, colIndex) => (
-                                <td key={colIndex}>
-                                    <div>
-                                        <label>US:</label>
-                                        <input
-                                            type="number"
-                                            value={cell.us}
-                                            onChange={(e) =>
-                                                updateMatrixCell(rowIndex, colIndex, 'us', parseInt(e.target.value, 10))
-                                            }
-                                        />
-                                    </div>
-                                    <div>
-                                        <label>China:</label>
-                                        <input
-                                            type="number"
-                                            value={cell.china}
-                                            onChange={(e) =>
-                                                updateMatrixCell(rowIndex, colIndex, 'china', parseInt(e.target.value, 10))
-                                            }
-                                        />
-                                    </div>
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    );
-
-    const renderGlossaryPanel = () => (
-        <div className="card">
-            <h3>Glossary</h3>
-            <ul>
-                {glossaryTerms.map((entry, index) => (
-                    <li key={index}>
-                        <strong>{entry.term}:</strong> {entry.definition}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-
-    const renderRecommendations = () => (
-        <div className="card">
-            <h3>Recommendations</h3>
-            <ul>
-                {recommendations.map((rec, index) => (
-                    <li key={index}>{rec}</li>
-                ))}
-            </ul>
-        </div>
-    );
-
     // Effects
     useEffect(() => {
         if (scenario) {
@@ -282,13 +181,37 @@ function USChinaSimulation() {
                 <button className="home-button" onClick={() => navigate('/vqm-TradeWarX/')}>Home</button>
             </header>
             <main className="main-content">
-                {renderScenarioSelector()}
-                {renderStrategySelector()}
-                {renderMatrix(payoffMatrix)}
-                {renderEditableMatrix(payoffMatrix)}
+                <ScenarioSelector
+                    scenario={scenario}
+                    setScenario={setScenario}
+                    scenarioOptions={scenarioOptions}
+                    scenarioContext={scenarioContext}
+                />
+                <StrategySelector
+                    usStrategy={usStrategy}
+                    setUsStrategy={setUsStrategy}
+                    chinaStrategy={chinaStrategy}
+                    setChinaStrategy={setChinaStrategy}
+                    strategyOptions={strategyOptions}
+                />
+                <PayoffMatrix
+                    matrix={payoffMatrix}
+                    isNashEquilibrium={isNashEquilibrium}
+                    isParetoOptimal={isParetoOptimal}
+                    handleStrategySelection={() => {}}
+                />
+                <EditableMatrix
+                    matrix={payoffMatrix}
+                    updateMatrixCell={updateMatrixCell}
+                    prepareChartData={prepareChartData}
+                    setChartData={setChartData}
+                    setRecommendations={setRecommendations}
+                    usStrategy={usStrategy}
+                    chinaStrategy={chinaStrategy}
+                />
                 {payoffMatrix ? <OutcomeCharts matrix={payoffMatrix} selections={{ us: usStrategy, china: chinaStrategy }} /> : null}
-                {renderGlossaryPanel()}
-                {renderRecommendations()}
+                <GlossaryPanel glossaryTerms={glossaryTerms} />
+                <RecommendationsPanel recommendations={recommendations} />
             </main>
         </div>
     );
