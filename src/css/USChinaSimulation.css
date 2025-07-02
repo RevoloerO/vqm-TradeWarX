@@ -1,0 +1,308 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* General Body and Font Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Container */
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* Header Styles */
+.header {
+    background-color: #ffffff;
+    padding: 24px 48px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    border: 1px solid #dee2e6;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: #0d47a1; /* Deep Blue */
+}
+
+.header p {
+    margin: 8px 0 0;
+    font-size: 1.15rem;
+    color: #495057;
+}
+
+/* Main Content Layout */
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Card Styles */
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #0d47a1;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 12px;
+}
+
+.card h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.methodology-section p, .methodology-section li {
+    line-height: 1.7;
+    color: #495057;
+}
+.methodology-section strong {
+    color: #212529;
+}
+
+/* Scenario Selector */
+.dropdown {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+    background-color: #fff;
+    transition: border-color 0.2s ease;
+}
+.dropdown:focus {
+    outline: none;
+    border-color: #1976d2;
+}
+
+.context {
+    margin-top: 20px;
+    padding: 16px;
+    background-color: #e3f2fd;
+    border-left: 5px solid #1976d2;
+    border-radius: 8px;
+    color: #0d47a1;
+}
+
+/* Strategy Selector */
+.strategy-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.strategy-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.strategy-button {
+    padding: 12px 16px;
+    border: 1px solid #ced4da;
+    background-color: #f8f9fa;
+    color: #495057;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.strategy-button:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.strategy-button.selected {
+    background-color: #1976d2; /* Brighter Blue */
+    color: white;
+    border-color: #1976d2;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(25, 118, 210, 0.2);
+}
+
+/* Payoff Matrix */
+.table-container {
+    overflow-x: auto;
+}
+
+.matrix-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.matrix-table th, .matrix-table td {
+    border: 1px solid #e9ecef;
+    padding: 16px;
+    position: relative;
+}
+
+.matrix-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.matrix-cell {
+    cursor: default;
+    transition: all 0.3s ease;
+}
+
+.matrix-cell.selected {
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.5);
+    background-color: #e3f2fd !important; /* Use important to override other background colors */
+    z-index: 10;
+}
+
+.matrix-cell.nash {
+    background-color: #d1e7dd;
+    font-weight: 600;
+}
+
+.matrix-cell.pareto {
+    border: 2px solid #ffc107;
+}
+
+.matrix-cell:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.matrix-cell span {
+    display: block;
+    margin: 2px 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.tooltip {
+    visibility: hidden;
+    width: 240px;
+    background-color: #343a40;
+    color: #fff;
+    text-align: left;
+    border-radius: 8px;
+    padding: 12px;
+    position: absolute;
+    z-index: 100;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -120px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.9rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #343a40 transparent transparent transparent;
+}
+
+.tooltip-grid {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 4px 8px;
+    align-items: center;
+}
+.tooltip-grid strong {
+    font-weight: 600;
+    color: #a0c4ff;
+}
+.tooltip-header {
+    font-weight: bold;
+    grid-column: span 3;
+    text-align: center;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #6c757d;
+    margin-bottom: 8px;
+}
+
+/* Outcome Charts */
+.charts-grid-enhanced {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.chart-container {
+    height: 350px; /* Give charts a fixed height */
+    position: relative;
+}
+
+/* Recommendations and Glossary */
+.recommendations-panel {
+    background-color: #fff9e6;
+    border-left: 5px solid #ffb300;
+}
+
+.glossary-list, .recommendations-panel ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.glossary-list li, .recommendations-panel li {
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f3f5;
+    color: #495057;
+    line-height: 1.6;
+}
+
+.glossary-list li strong, .recommendations-panel li strong {
+    color: #212529;
+}
+
+.glossary-list li:last-child, .recommendations-panel li:last-child {
+    border-bottom: none;
+}

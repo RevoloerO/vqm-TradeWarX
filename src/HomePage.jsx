@@ -1,5 +1,5 @@
 import React from 'react';
-import './HomePage.css'; // Import the dedicated CSS file
+import './css/HomePage.css'; // Import the dedicated CSS file
 import { useNavigate } from 'react-router-dom';
 
 // Icon component remains the same
