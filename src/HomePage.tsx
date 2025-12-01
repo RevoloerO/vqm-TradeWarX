@@ -1,9 +1,8 @@
 import React from 'react';
-import './css/HomePage.css'; // Import the dedicated CSS file
+import './css/HomePage.css';
 import { useNavigate } from 'react-router-dom';
 
-// Icon component remains the same
-const ArrowRightIcon = () => (
+const ArrowRightIcon: React.FC = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -21,24 +20,21 @@ const ArrowRightIcon = () => (
   </svg>
 );
 
-// Checkmark icon for the features list
-const CheckmarkIcon = () => (
+const CheckmarkIcon: React.FC = () => (
     <svg className="checkmark-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
 );
 
-
-// Main HomePage Component
-function HomePage() {
+function HomePage(): JSX.Element {
     const navigate = useNavigate();
-  // Navigation logic placeholder
-  const handleNavigate = () => {
+
+  const handleNavigate = (): void => {
     console.log("Navigating to US-China Simulation...");
     navigate('/vqm-TradeWarX/US-China')
   };
 
-  const features = [
+  const features: string[] = [
     "Interactive payoff matrices and strategic scenario simulations.",
     "Real-time Nash Equilibrium and Pareto Optimal visualizations.",
     "Educational resources covering fundamental game theory concepts.",
@@ -60,12 +56,16 @@ function HomePage() {
               {/* Left Section: Logo and CTA */}
               <div className="card-left">
                 <div className="logo-container">
-                
+
                   <img
                     src={"images/TradeWarX-logo-nobg.png"}
                     alt="Trade War X Logo"
                     className="logo-image"
-                    onError={(e) => { e.target.onerror = null; e.target.src="images/TradeWarX-logo-nobg.png"; }}
+                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = "images/TradeWarX-logo-nobg.png";
+                    }}
                   />
                 </div>
                 <h2 className="card-left-title">
@@ -115,6 +115,6 @@ function HomePage() {
       </div>
     </div>
   );
-};
+}
 
 export default HomePage;

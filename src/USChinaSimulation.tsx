@@ -7,7 +7,7 @@ import {
     BarElement,
     RadialLinearScale,
     PointElement,
-    LineElement, // Added to fix registration error
+    LineElement,
     ArcElement,
     Title,
     Tooltip,
@@ -22,44 +22,136 @@ ChartJS.register(
     BarElement,
     RadialLinearScale,
     PointElement,
-    LineElement, // Added to fix registration error
+    LineElement,
     ArcElement,
     Title,
     Tooltip,
     Legend
 );
 
+// --- Type Definitions ---
+
+interface ComponentScores {
+    E: number;
+    D: number;
+    T: number;
+    S: number;
+}
+
+interface Weights {
+    us: ComponentScores;
+    china: ComponentScores;
+}
+
+interface ScenarioScores {
+    us: ComponentScores;
+    china: ComponentScores;
+}
+
+interface PayoffCell {
+    us: number;
+    china: number;
+}
+
+interface ScenarioData {
+    context: string;
+    baseScores: ScenarioScores[][][];
+}
+
+interface Scenarios {
+    [key: string]: ScenarioData;
+}
+
+interface StrategyOption {
+    key: string;
+    label: string;
+}
+
+interface GlossaryEntry {
+    term: string;
+    definition: string;
+}
+
+interface ChartData {
+    payoffDistribution: any;
+    radarData: any;
+}
+
+interface ScenarioSelectorProps {
+    scenario: string | null;
+    setScenario: (scenario: string) => void;
+    scenarioOptions: string[];
+    scenarioContext: string;
+}
+
+interface StrategySelectorProps {
+    usStrategy: string | null;
+    setUsStrategy: (strategy: string) => void;
+    chinaStrategy: string | null;
+    setChinaStrategy: (strategy: string) => void;
+    strategyOptions: StrategyOption[];
+}
+
+interface PayoffMatrixProps {
+    payoffMatrix: PayoffCell[][];
+    baseScores: ScenarioScores[][];
+    isNashEquilibrium: (matrix: PayoffCell[][], row: number, col: number) => boolean;
+    isParetoOptimal: (matrix: PayoffCell[][], row: number, col: number) => boolean;
+    strategyOptions: StrategyOption[];
+    usStrategy: string | null;
+    chinaStrategy: string | null;
+}
+
+interface OutcomeChartsProps {
+    matrix: PayoffCell[][];
+    selections: {
+        scenario: string | null;
+        us: string | null;
+        china: string | null;
+    };
+    strategyOptions: StrategyOption[];
+}
+
+interface GlossaryPanelProps {
+    glossaryTerms: GlossaryEntry[];
+}
+
+interface RecommendationsPanelProps {
+    scenario: string | null;
+    usStrategy: string | null;
+    chinaStrategy: string | null;
+}
+
 // --- Data and Logic from Research Paper ---
 
-const weights = {
+const weights: Weights = {
     us: { E: 0.30, D: 0.35, T: 0.25, S: 0.10 },
     china: { E: 0.40, D: 0.30, T: 0.20, S: 0.10 },
 };
 
-const scenarios = {
+const scenarios: Scenarios = {
     "Tech War": {
         context: "A direct confrontation focused on technological dominance. The US employs export controls on semiconductors and AI, while China leverages its control over tech manufacturing and supply chains.",
-        baseScores: [ // Rows: US Strategies, Cols: China Strategies
-            // China: De-escalate, Status Quo, Escalate Symmetrically, Escalate Asymmetrically
-            [ // US: De-escalate
+        baseScores: [
+            [
                 { us: { E: 5, D: -6, T: -5, S: 3 }, china: { E: 5, D: -6, T: 2, S: 3 } },
                 { us: { E: 3, D: -4, T: -7, S: 1 }, china: { E: 6, D: 4, T: 5, S: 4 } },
                 { us: { E: -2, D: -5, T: -8, S: -4 }, china: { E: 3, D: 6, T: 7, S: 2 } },
                 { us: { E: -5, D: -7, T: -10, S: -8 }, china: { E: 0, D: 8, T: 8, S: -2 } }
             ],
-            [ // US: Status Quo
+            [
                 { us: { E: 6, D: 4, T: 4, S: 2 }, china: { E: 2, D: -3, T: -4, S: 0 } },
                 { us: { E: 2, D: 2, T: 2, S: 0 }, china: { E: 2, D: 2, T: 2, S: 0 } },
                 { us: { E: -3, D: 3, T: 0, S: -5 }, china: { E: -2, D: 5, T: 4, S: -3 } },
                 { us: { E: -6, D: 1, T: -2, S: -9 }, china: { E: -4, D: 7, T: 6, S: -5 } }
             ],
-            [ // US: Escalate Symmetrically
+            [
                 { us: { E: 4, D: 6, T: 6, S: 5 }, china: { E: -4, D: -4, T: -6, S: -5 } },
                 { us: { E: -1, D: 5, T: 5, S: -2 }, china: { E: -3, D: 3, T: -3, S: -2 } },
                 { us: { E: -5, D: 0, T: -4, S: -7 }, china: { E: -6, D: 0, T: -5, S: -6 } },
                 { us: { E: -8, D: -2, T: -6, S: -10 }, china: { E: -7, D: -1, T: -4, S: -8 } }
             ],
-            [ // US: Escalate Asymmetrically
+            [
                 { us: { E: 2, D: 8, T: 8, S: 3 }, china: { E: -7, D: -5, T: -8, S: -7 } },
                 { us: { E: 0, D: 7, T: 7, S: -1 }, china: { E: -5, D: 0, T: -6, S: -4 } },
                 { us: { E: -4, D: 2, T: 3, S: -6 }, china: { E: -8, D: -2, T: -7, S: -8 } },
@@ -70,26 +162,25 @@ const scenarios = {
     "Trade & Tariffs": {
         context: "A broad-based conflict using tariffs as the primary weapon, justified by trade imbalances and domestic issues (e.g., fentanyl precursors). This reflects the tit-for-tat escalation cycles.",
         baseScores: [
-            // China: De-escalate, Status Quo, Escalate Symmetrically, Escalate Asymmetrically
-            [ // US: De-escalate
+            [
                 { us: { E: 7, D: -7, T: 0, S: 2 }, china: { E: 7, D: -7, T: 1, S: 2 } },
                 { us: { E: 4, D: -5, T: -2, S: 0 }, china: { E: 8, D: 5, T: 3, S: 4 } },
                 { us: { E: -2, D: -6, T: -3, S: -3 }, china: { E: 4, D: 7, T: 4, S: 1 } },
                 { us: { E: -4, D: -8, T: -4, S: -5 }, china: { E: 1, D: 8, T: 5, S: -2 } }
             ],
-            [ // US: Status Quo
+            [
                 { us: { E: 8, D: 6, T: 2, S: 3 }, china: { E: 3, D: -2, T: -1, S: 0 } },
                 { us: { E: 3, D: 3, T: 0, S: 0 }, china: { E: 3, D: 3, T: 0, S: 0 } },
                 { us: { E: -4, D: 4, T: -1, S: -4 }, china: { E: -3, D: 5, T: -2, S: -3 } },
                 { us: { E: -6, D: 2, T: -2, S: -6 }, china: { E: -5, D: 6, T: 2, S: -5 } }
             ],
-            [ // US: Escalate Symmetrically
+            [
                 { us: { E: 5, D: 8, T: 1, S: 4 }, china: { E: -5, D: -5, T: -3, S: -4 } },
                 { us: { E: -2, D: 6, T: 0, S: -2 }, china: { E: -4, D: 4, T: -2, S: -2 } },
                 { us: { E: -7, D: 0, T: -5, S: -8 }, china: { E: -8, D: 0, T: -6, S: -8 } },
                 { us: { E: -9, D: -2, T: -6, S: -9 }, china: { E: -7, D: -1, T: -4, S: -7 } }
             ],
-            [ // US: Escalate Asymmetrically
+            [
                 { us: { E: 3, D: 7, T: 5, S: 2 }, china: { E: -6, D: -6, T: -7, S: -6 } },
                 { us: { E: -1, D: 5, T: 4, S: -3 }, china: { E: -5, D: 1, T: -5, S: -4 } },
                 { us: { E: -5, D: 1, T: 2, S: -7 }, china: { E: -9, D: -3, T: -8, S: -9 } },
@@ -99,14 +190,14 @@ const scenarios = {
     }
 };
 
-const calculatePayoff = (scores, player, currentWeights) => {
+const calculatePayoff = (scores: ScenarioScores, player: 'us' | 'china', currentWeights: Weights): string => {
     const w = currentWeights[player];
     return (scores[player].E * w.E + scores[player].D * w.D + scores[player].T * w.T + scores[player].S * w.S).toFixed(2);
 };
 
 // --- Child Components ---
 
-function ScenarioSelector({ scenario, setScenario, scenarioOptions, scenarioContext }) {
+function ScenarioSelector({ scenario, setScenario, scenarioOptions, scenarioContext }: ScenarioSelectorProps): JSX.Element {
     return (
         <div className="card">
             <h3>Select Conflict Scenario</h3>
@@ -127,7 +218,7 @@ function ScenarioSelector({ scenario, setScenario, scenarioOptions, scenarioCont
     );
 }
 
-function StrategySelector({ usStrategy, setUsStrategy, chinaStrategy, setChinaStrategy, strategyOptions }) {
+function StrategySelector({ usStrategy, setUsStrategy, chinaStrategy, setChinaStrategy, strategyOptions }: StrategySelectorProps): JSX.Element {
     return (
         <div className="card">
             <h3>Select Strategies</h3>
@@ -161,15 +252,15 @@ function StrategySelector({ usStrategy, setUsStrategy, chinaStrategy, setChinaSt
     );
 }
 
-function PayoffMatrix({ payoffMatrix, baseScores, isNashEquilibrium, isParetoOptimal, strategyOptions, usStrategy, chinaStrategy }) {
+function PayoffMatrix({ payoffMatrix, baseScores, isNashEquilibrium, isParetoOptimal, strategyOptions, usStrategy, chinaStrategy }: PayoffMatrixProps): JSX.Element {
     if (!payoffMatrix || payoffMatrix.length === 0) {
         return <div className="card"><p>Please select a scenario to view the payoff matrix.</p></div>;
     }
-    
+
     const usIndex = strategyOptions.findIndex(o => o.key === usStrategy);
     const chinaIndex = strategyOptions.findIndex(o => o.key === chinaStrategy);
 
-    const renderTooltipContent = (scores) => (
+    const renderTooltipContent = (scores: ScenarioScores): JSX.Element => (
         <div className="tooltip-grid">
             <div className="tooltip-header">Base Scores</div>
             <strong>Component</strong><strong>US</strong><strong>China</strong>
@@ -221,17 +312,16 @@ function PayoffMatrix({ payoffMatrix, baseScores, isNashEquilibrium, isParetoOpt
     );
 }
 
-function OutcomeCharts({ matrix, selections, strategyOptions }) {
-    const [chartData, setChartData] = useState({
+function OutcomeCharts({ matrix, selections, strategyOptions }: OutcomeChartsProps): JSX.Element {
+    const [chartData, setChartData] = useState<ChartData>({
         payoffDistribution: null,
         radarData: null,
     });
-    
-    // Create a key that changes when selections change to force re-render
+
     const chartKey = `${selections.scenario}-${selections.us}-${selections.china}`;
 
     useEffect(() => {
-        if (matrix && matrix.length > 0 && selections.us && selections.china) {
+        if (matrix && matrix.length > 0 && selections.us && selections.china && selections.scenario) {
             const usIndex = strategyOptions.findIndex(o => o.key === selections.us);
             const chinaIndex = strategyOptions.findIndex(o => o.key === selections.china);
 
@@ -305,7 +395,7 @@ function OutcomeCharts({ matrix, selections, strategyOptions }) {
 }
 
 
-function GlossaryPanel({ glossaryTerms }) {
+function GlossaryPanel({ glossaryTerms }: GlossaryPanelProps): JSX.Element {
     return (
         <div className="card">
             <h3>Glossary</h3>
@@ -320,11 +410,11 @@ function GlossaryPanel({ glossaryTerms }) {
     );
 }
 
-function RecommendationsPanel({ scenario, usStrategy, chinaStrategy }) {
-    const [recommendations, setRecommendations] = useState([]);
+function RecommendationsPanel({ scenario, usStrategy, chinaStrategy }: RecommendationsPanelProps): JSX.Element | null {
+    const [recommendations, setRecommendations] = useState<string[]>([]);
 
     useEffect(() => {
-        const getRecs = () => {
+        const getRecs = (): string[] => {
             if (!scenario || !usStrategy || !chinaStrategy) {
                 return ["Select a scenario and strategies for analysis."];
             }
@@ -368,7 +458,7 @@ function RecommendationsPanel({ scenario, usStrategy, chinaStrategy }) {
     );
 }
 
-function MethodologyPanel() {
+function MethodologyPanel(): JSX.Element {
     return (
         <div className="card methodology-section">
             <h3>Model Methodology (Based on "The Bellicose Duopoly")</h3>
@@ -392,34 +482,30 @@ function MethodologyPanel() {
 
 // --- Main App Component ---
 
-function USChinaSimulation() {
-    // State
-    const [scenario, setScenario] = useState(null);
-    const [usStrategy, setUsStrategy] = useState(null);
-    const [chinaStrategy, setChinaStrategy] = useState(null);
-    
-    // Constants from paper
-    const strategyOptions = [
+function USChinaSimulation(): JSX.Element {
+    const [scenario, setScenario] = useState<string | null>(null);
+    const [usStrategy, setUsStrategy] = useState<string | null>(null);
+    const [chinaStrategy, setChinaStrategy] = useState<string | null>(null);
+
+    const strategyOptions: StrategyOption[] = [
         { key: 'De-escalate', label: 'De-escalate' },
         { key: 'StatusQuo', label: 'Status Quo' },
         { key: 'EscalateSymmetrically', label: 'Escalate Symmetrically' },
         { key: 'EscalateAsymmetrically', label: 'Escalate Asymmetrically' },
     ];
-    const scenarioOptions = Object.keys(scenarios);
-    const glossaryTerms = [
+    const scenarioOptions: string[] = Object.keys(scenarios);
+    const glossaryTerms: GlossaryEntry[] = [
         { term: 'Nash Equilibrium', definition: 'A stable outcome where no player can benefit by changing their strategy unilaterally, assuming the other player\'s strategy remains constant.' },
         { term: 'Pareto Optimality', definition: 'An outcome where no player can be made better off without making at least one other player worse off. It represents the set of most efficient outcomes.' },
         { term: 'Unstable Détente', definition: 'The predicted equilibrium from the paper; a cycle of escalation and de-escalation where conflict is managed but never resolved, creating persistent uncertainty.' },
         { term: 'Dual Circulation Strategy', definition: 'China\'s strategy to reorient its economy by boosting domestic consumption and achieving technological self-sufficiency to reduce vulnerability to external pressure.' },
     ];
 
-    // --- Logic and Effects ---
-
     const { payoffMatrix, baseScores } = useMemo(() => {
-        if (!scenario) return { payoffMatrix: [], baseScores: [] };
-        
+        if (!scenario) return { payoffMatrix: [] as PayoffCell[][], baseScores: [] as ScenarioScores[][] };
+
         const scenarioData = scenarios[scenario];
-        const matrix = scenarioData.baseScores.map(row => 
+        const matrix = scenarioData.baseScores.map(row =>
             row.map(scores => ({
                 us: parseFloat(calculatePayoff(scores, 'us', weights)),
                 china: parseFloat(calculatePayoff(scores, 'china', weights)),
@@ -429,7 +515,7 @@ function USChinaSimulation() {
 
     }, [scenario]);
 
-    const isNashEquilibrium = (matrix, row, col) => {
+    const isNashEquilibrium = (matrix: PayoffCell[][], row: number, col: number): boolean => {
         if (!matrix || !matrix[row] || !matrix[row][col]) return false;
         const usPayoff = matrix[row][col].us;
         for (let i = 0; i < matrix.length; i++) {
@@ -442,19 +528,19 @@ function USChinaSimulation() {
         return true;
     };
 
-    const isParetoOptimal = (matrix, row, col) => {
+    const isParetoOptimal = (matrix: PayoffCell[][], row: number, col: number): boolean => {
         if (!matrix || !matrix[row] || !matrix[row][col]) return false;
         const { us, china } = matrix[row][col];
         for (let i = 0; i < matrix.length; i++) {
             for (let j = 0; j < matrix[i].length; j++) {
                 if ((matrix[i][j].us > us && matrix[i][j].china >= china) || (matrix[i][j].us >= us && matrix[i][j].china > china)) {
-                    return false; 
+                    return false;
                 }
             }
         }
         return true;
     };
-    
+
     useEffect(() => {
         if (scenario) {
             setUsStrategy(null);
@@ -462,8 +548,6 @@ function USChinaSimulation() {
         }
     }, [scenario]);
 
-
-    // --- Main Render ---
     return (
         <div className="container">
             <header className="header">
