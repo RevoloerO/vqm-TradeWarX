@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Bar, Pie, Radar } from 'react-chartjs-2';
+import { Pie, Radar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -12,6 +12,7 @@ import {
     Title,
     Tooltip,
     Legend,
+    ChartData as ChartJsData,
 } from 'chart.js';
 import './css/USChinaSimulation.css';
 
@@ -73,8 +74,8 @@ interface GlossaryEntry {
 }
 
 interface ChartData {
-    payoffDistribution: any;
-    radarData: any;
+    payoffDistribution: ChartJsData<'pie'> | null;
+    radarData: ChartJsData<'radar'> | null;
 }
 
 interface ScenarioSelectorProps {
@@ -321,6 +322,8 @@ function OutcomeCharts({ matrix, selections, strategyOptions }: OutcomeChartsPro
     const chartKey = `${selections.scenario}-${selections.us}-${selections.china}`;
 
     useEffect(() => {
+        let isMounted = true;
+
         if (matrix && matrix.length > 0 && selections.us && selections.china && selections.scenario) {
             const usIndex = strategyOptions.findIndex(o => o.key === selections.us);
             const chinaIndex = strategyOptions.findIndex(o => o.key === selections.china);
@@ -367,10 +370,18 @@ function OutcomeCharts({ matrix, selections, strategyOptions }: OutcomeChartsPro
                 ]
             };
 
-            setChartData({ payoffDistribution, radarData });
+            if (isMounted) {
+                setChartData({ payoffDistribution, radarData });
+            }
         } else {
-            setChartData({ payoffDistribution: null, radarData: null });
+            if (isMounted) {
+                setChartData({ payoffDistribution: null, radarData: null });
+            }
         }
+
+        return () => {
+            isMounted = false;
+        };
     }, [matrix, selections, strategyOptions]);
 
     if (!chartData.payoffDistribution) {
@@ -400,8 +411,8 @@ function GlossaryPanel({ glossaryTerms }: GlossaryPanelProps): JSX.Element {
         <div className="card">
             <h3>Glossary</h3>
             <ul className="glossary-list">
-                {glossaryTerms.map((entry, index) => (
-                    <li key={index}>
+                {glossaryTerms.map((entry) => (
+                    <li key={entry.term}>
                         <strong>{entry.term}:</strong> {entry.definition}
                     </li>
                 ))}
@@ -450,8 +461,8 @@ function RecommendationsPanel({ scenario, usStrategy, chinaStrategy }: Recommend
         <div className="card recommendations-panel">
             <h3>Strategic Analysis & Recommendations</h3>
             <ul>
-                {recommendations.map((rec, index) => (
-                    <li key={index}>{rec}</li>
+                {recommendations.map((rec) => (
+                    <li key={rec.substring(0, 50)}>{rec}</li>
                 ))}
             </ul>
         </div>

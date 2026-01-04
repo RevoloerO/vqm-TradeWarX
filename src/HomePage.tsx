@@ -30,8 +30,7 @@ function HomePage(): JSX.Element {
     const navigate = useNavigate();
 
   const handleNavigate = (): void => {
-    console.log("Navigating to US-China Simulation...");
-    navigate('/vqm-TradeWarX/US-China')
+    navigate('/US-China')
   };
 
   const features: string[] = [
@@ -99,8 +98,8 @@ function HomePage(): JSX.Element {
                 <div className="features-section">
                   <h3 className="features-title">Key Features:</h3>
                   <ul className="features-list">
-                    {features.map((feature, index) => (
-                      <li key={index} className="feature-item">
+                    {features.map((feature) => (
+                      <li key={feature} className="feature-item">
                         <CheckmarkIcon />
                         <span>{feature}</span>
                       </li>
