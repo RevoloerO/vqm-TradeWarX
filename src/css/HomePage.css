@@ -175,6 +175,19 @@
   transform: translateX(0.25rem); /* group-hover:translate-x-1 */
 }
 
+.cta-button.secondary {
+  background-color: #3B82F6; /* bg-blue-600 */
+  margin-top: 1rem;
+}
+
+.cta-button.secondary:hover {
+  background-color: #2563EB; /* hover:bg-blue-700 */
+}
+
+.cta-button.secondary:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5); /* focus:ring-4 focus:ring-blue-300 */
+}
+
 /* Card Right Section (Content) */
 .card-right {
   padding: 3rem; /* p-12 */

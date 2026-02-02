@@ -33,11 +33,16 @@ function HomePage(): JSX.Element {
     navigate('/US-China')
   };
 
+  const handleHistoricalNavigate = (): void => {
+    navigate('/historical')
+  };
+
   const features: string[] = [
     "Interactive payoff matrices and strategic scenario simulations.",
     "Real-time Nash Equilibrium and Pareto Optimal visualizations.",
+    "Historical timeline with real trade war events from 2018-2025.",
+    "Economic impact analysis with GDP and sector-specific charts.",
     "Educational resources covering fundamental game theory concepts.",
-    "Scenario customization to analyze real-world trade policy decisions.",
   ];
 
   return (
@@ -78,6 +83,13 @@ function HomePage(): JSX.Element {
                   className="cta-button"
                 >
                   Launch US-China Simulation
+                  <ArrowRightIcon />
+                </button>
+                <button
+                  onClick={handleHistoricalNavigate}
+                  className="cta-button secondary"
+                >
+                  View Historical Analysis
                   <ArrowRightIcon />
                 </button>
               </div>
