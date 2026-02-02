@@ -37,11 +37,18 @@ function HomePage(): JSX.Element {
     navigate('/historical')
   };
 
+  const handleMultipolarNavigate = (): void => {
+    navigate('/multipolar')
+  };
+
   const features: string[] = [
     "Interactive payoff matrices and strategic scenario simulations.",
     "Real-time Nash Equilibrium and Pareto Optimal visualizations.",
     "Historical timeline with real trade war events from 2018-2025.",
     "Economic impact analysis with GDP and sector-specific charts.",
+    "Three-player multipolar simulation with USA, BRICS, and EU dynamics.",
+    "Coalition stability mechanics showing BRICS fragmentation risks.",
+    "Multi-dimensional payoffs across economic, security, technology, resources, and diplomatic dimensions.",
     "Educational resources covering fundamental game theory concepts.",
   ];
 
@@ -90,6 +97,13 @@ function HomePage(): JSX.Element {
                   className="cta-button secondary"
                 >
                   View Historical Analysis
+                  <ArrowRightIcon />
+                </button>
+                <button
+                  onClick={handleMultipolarNavigate}
+                  className="cta-button tertiary"
+                >
+                  Multipolar Simulation (USA vs BRICS vs EU)
                   <ArrowRightIcon />
                 </button>
               </div>

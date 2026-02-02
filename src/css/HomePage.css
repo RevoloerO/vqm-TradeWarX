@@ -188,6 +188,19 @@
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5); /* focus:ring-4 focus:ring-blue-300 */
 }
 
+.cta-button.tertiary {
+  background-color: #8B5CF6; /* bg-purple-600 */
+  margin-top: 1rem;
+}
+
+.cta-button.tertiary:hover {
+  background-color: #7C3AED; /* hover:bg-purple-700 */
+}
+
+.cta-button.tertiary:focus {
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.5); /* focus:ring-4 focus:ring-purple-300 */
+}
+
 /* Card Right Section (Content) */
 .card-right {
   padding: 3rem; /* p-12 */
